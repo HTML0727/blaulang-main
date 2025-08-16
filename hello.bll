@@ -1,0 +1,49 @@
+\= BlauLang Example Program
+\= This is a simple example program demonstrating BlauLang syntax
+
+\= Variable declaration
+name = "Welt"
+version = 1.0
+counter = 0
+
+\= Function definition
+def greet(person) {
+  return "Hallo, " + person + "!"
+}
+
+def calculate_sum(a, b) {
+  return a + b
+}
+
+\= Print statement
+printl(greet(name))
+printl("BlauLang Version: " + version)
+
+\= If statement
+wenn counter > 10 {
+  printl("Counter is greater than 10")
+} sonn counter == 0 {
+  printl("Counter is zero")
+} sonst {
+  printl("Counter is between 1 and 10")
+}
+
+\= For loop
+fur i in range(1, 6) {
+  printl("Iteration: " + i)
+  counter = counter + 1
+}
+
+\= When statement
+when calculate_sum(3, 5) {
+  7: printl("Sum is 7")
+  8: printl("Sum is 8")
+  else: printl("Sum is something else")
+}
+
+\= Multi-line comment
+\-
+This is a
+multi-line comment
+in BlauLang
+\-

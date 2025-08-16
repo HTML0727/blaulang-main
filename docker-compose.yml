@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # BlauLang 编译器服务
+  blauc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./workspace:/workspace
+      - ./examples:/usr/local/share/blau/examples
+    working_dir: /workspace
+    command: blauc hello.bll
+    
+  # 开发环境服务
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/src
+      - ./workspace:/workspace
+    working_dir: /src
+    command: tail -f /dev/null
+    stdin_open: true
+    tty: true
+    
+  # 测试环境服务
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/src
+      - ./workspace:/workspace
+    working_dir: /src
+    command: make test
+    
+  # 交叉编译服务
+  cross-compile:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/src
+      - ./workspace:/workspace
+    working_dir: /src
+    environment:
+      - CROSS_COMPILE=true
+    command: >
+      bash -c "
+        make linux-x64 &&
+        make linux-arm64 &&
+        make windows-x64 &&
+        make macos-x64
+      "
+      
+  # 文档生成服务
+  docs:
+    image: node:16-alpine
+    volumes:
+      - ./docs:/docs
+    working_dir: /docs
+    command: >
+      sh -c "
+        npm install -g @blau/docs-generator &&
+        blau-docs generate --output /docs/build
+      "
+      
+  # 包管理服务
+  package-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./packages:/packages
+      - ./workspace:/workspace
+    working_dir: /packages
+    command: blauc package serve --port 8080
+    ports:
+      - "8080:8080"
+      
+  # 性能测试服务
+  benchmark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/src
+      - ./workspace:/workspace
+    working_dir: /src
+    command: make benchmark
+    environment:
+      - PERF_MODE=true
+      
+  # 调试服务
+  debug:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/src
+      - ./workspace:/workspace
+    working_dir: /src
+    command: tail -f /dev/null
+    stdin_open: true
+    tty: true
+    environment:
+      - DEBUG=true
+      - GDB=1
